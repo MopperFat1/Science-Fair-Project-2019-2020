@@ -1,18 +1,3 @@
-/**
-  ******************************************************************************
-  * @file    vr_sample_control_led.ino
-  * @author  JiapengLi
-  * @brief   This file provides a demostration on 
-              how to control led by using VoiceRecognitionModule
-  ******************************************************************************
-  * @note:
-        voice control led
-  ******************************************************************************
-  * @section  HISTORY
-    
-    2013/06/13    Initial version.
-  */
-  
 #include <SoftwareSerial.h>
 #include "VoiceRecognitionV3.h"
 int ledPin1 = 8;            
@@ -27,15 +12,8 @@ int ledPin3 = 13;
 int pir3 = 7;               
 int pirState3 = LOW;            
 int val3 = 0;            
-/**        
-  Connection
-  Arduino    VoiceRecognitionModule
-   2   ------->     TX
-   3   ------->     RX
-*/
-VR myVR(2,3);    // 2:RX 3:TX, you can choose your favourite pins.
-
-uint8_t records[7]; // save record
+VR myVR(2,3);
+uint8_t records[7];
 uint8_t buf[64];
 
 int led = 13;
@@ -43,12 +21,6 @@ int led = 13;
 #define onRecord    (0)
 #define offRecord   (1) 
 
-/**
-  @brief   Print signature, if the character is invisible, 
-           print hexible value instead.
-  @param   buf     --> command length
-           len     --> number of parameters
-*/
 void printSignature(uint8_t *buf, int len)
 {
   int i;
@@ -64,16 +36,7 @@ void printSignature(uint8_t *buf, int len)
   }
 }
 
-/**
-  @brief   Print signature, if the character is invisible, 
-           print hexible value instead.
-  @param   buf  -->  VR module return value when voice is recognized.
-             buf[0]  -->  Group mode(FF: None Group, 0x8n: User, 0x0n:System
-             buf[1]  -->  number of record which is recognized. 
-             buf[2]  -->  Recognizer index(position) value of the recognized record.
-             buf[3]  -->  Signature length
-             buf[4]~buf[n] --> Signature
-*/
+
 void printVR(uint8_t *buf)
 {
   Serial.println("VR Index\tGroup\tRecordNum\tSignature");
@@ -107,7 +70,6 @@ void printVR(uint8_t *buf)
 
 void setup()
 {
-  /** initialize */
   myVR.begin(9600);
   pinMode(ledPin1, OUTPUT);     
   pinMode(pir1, INPUT);  
