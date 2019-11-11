@@ -15,12 +15,9 @@ int val3 = 0;
 VR myVR(2,3);
 uint8_t records[7];
 uint8_t buf[64];
-
 int led = 13;
-
 #define onRecord    (0)
 #define offRecord   (1) 
-
 void printSignature(uint8_t *buf, int len)
 {
   int i;
@@ -35,15 +32,11 @@ void printSignature(uint8_t *buf, int len)
     }
   }
 }
-
-
 void printVR(uint8_t *buf)
 {
   Serial.println("VR Index\tGroup\tRecordNum\tSignature");
-
   Serial.print(buf[2], DEC);
   Serial.print("\t\t");
-
   if(buf[0] == 0xFF){
     Serial.print("NONE");
   }
@@ -67,7 +60,6 @@ void printVR(uint8_t *buf)
   }
   Serial.println("\r\n");
 }
-
 void setup()
 {
   myVR.begin(9600);
@@ -78,10 +70,8 @@ void setup()
   pinMode(ledPin2, OUTPUT);     
   pinMode(pir2, INPUT);
   Serial.begin(115200);
-  Serial.println("Elechouse Voice Recognition V3 Module\r\nControl LED sample");
-  
-  pinMode(led, OUTPUT);
-    
+  Serial.println("Elechouse Voice Recognition V3 Module\r\nControl LED sample");  
+  pinMode(led, OUTPUT);    
   if(myVR.clear() == 0){
     Serial.println("Recognizer cleared.");
   }else{
@@ -89,16 +79,13 @@ void setup()
     Serial.println("Please check connection and restart Arduino.");
     while(1);
   }
-  
   if(myVR.load((uint8_t)onRecord) >= 0){
     Serial.println("onRecord loaded");
-  }
-  
+  } 
   if(myVR.load((uint8_t)offRecord) >= 0){
     Serial.println("offRecord loaded");
   }
 }
-
 void loop()
 {
   int ret;
@@ -106,7 +93,6 @@ void loop()
   if(ret>0){
     switch(buf[1]){
       case onRecord:
-        /** turn on LED */
 #include <VoiceRecognitionV3.h>                 
   val1 = digitalRead(pir1);
   val2 = digitalRead(pir2);
@@ -114,7 +100,6 @@ void loop()
   if (val1 == HIGH) {           
     digitalWrite(ledPin1, HIGH);
     if (pirState1 == LOW) {
-      // we have just turned on
       Serial.println("Motion detected!1");
       pirState1 = HIGH;
     }
@@ -128,7 +113,6 @@ void loop()
   if (val2 == HIGH) {           
     digitalWrite(ledPin2, HIGH);
     if (pirState2 == LOW) {
-      // we have just turned on
       Serial.println("Motion detected!2");
       pirState2 = HIGH;
     }
@@ -142,7 +126,6 @@ void loop()
   if (val3 == HIGH) {           
     digitalWrite(ledPin3, HIGH);
     if (pirState3 == LOW) {
-      // we have just turned on
       Serial.println("Motion detected!3");
       pirState3 = HIGH;
     } 
@@ -175,7 +158,6 @@ void loop()
     }
         break;
       case offRecord:
-        /** turn off LED*/
         digitalWrite(ledPin1, LOW);
         digitalWrite(ledPin2, LOW);
         digitalWrite(ledPin3, LOW);
@@ -184,20 +166,10 @@ void loop()
         Serial.println("Record function undefined");
         break;
     }
-    /** voice recognized */
     printVR(buf);
     }
   }
-
-
-
-
-
-
-
-
-
-
+--------------------------------------
 #include <SoftwareSerial.h>
 #include "VoiceRecognitionV3.h"
 VR myVR(2,3);
@@ -212,7 +184,6 @@ int checkCMD(int len);
 int checkParaNum(int len);
 int findPara(int len, int paraNum, uint8_t **addr);
 int compareCMD(uint8_t *para1 , uint8_t *para2, int len);
-
 int cmdTrain(int len, int paraNum);
 int cmdLoad(int len, int paraNum);
 int cmdTest(int len, int paraNum);
@@ -286,7 +257,6 @@ void setup(void)
   myVR.begin(9600);
   Serial.begin(115200);
   Serial.println(F("Elechouse Voice Recognition V3 Module \"train\" sample."));
-
   printSeperator();
   Serial.println(F("Usage:"));
   printSeperator();
@@ -294,7 +264,6 @@ void setup(void)
   printSeperator();
   cmd_cnt = 0;
 }
-
 void loop(void)
 {
   int len, paraNum, paraLen, i;
@@ -356,7 +325,6 @@ int receiveCMD()
         return -1;
       }
     }
-
     if(millis() - start_millis > 100){
       cmd_cnt = 0;
       return -1;
@@ -383,10 +351,8 @@ int checkCMD(int len)
   int i;
   for(i=0; i<len; i++){
     if(cmd[i] > 0x1F && cmd[i] < 0x7F){
-
     }
     else if(cmd[i] == '\t' || cmd[i] == ' ' || cmd[i] == '\r' || cmd[i] == '\n'){
-
     }
     else{
       return -1;
@@ -437,7 +403,6 @@ int findPara(int len, int paraIndex, uint8_t **addr)
   }
   return -1;
 }
-
 int cmdHelp(int len, int paraNum)
 {
   if(paraNum != 1){
@@ -483,7 +448,6 @@ int cmdLoad(int len, int paraNum)
   if(paraNum < 2 || paraNum > 8 ){
     return -1;
   }
-
   for(i=2; i<=paraNum; i++){
     findPara(len, i, &paraAddr);
     records[i-2] = atoi((char *)paraAddr);
@@ -940,7 +904,6 @@ const unsigned int io_pw_tab[16]={
   10,  15,  20,  25,  30,  35,  40,  45, 
   50,  75,  100, 200, 300, 400, 500, 1000
 };
-
 void printSystemSettings(uint8_t *buf, int len)
 {
   switch(buf[0]){
