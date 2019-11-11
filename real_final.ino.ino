@@ -279,17 +279,11 @@ cmd_function_t cmdFunction[CMD_NUM]={      // command handle fuction(function po
   cmdTest,
   cmdHelp,
 };
-
-/***************************************************************************/
-/** temprory data */
 uint8_t buf[255];
 uint8_t records[7]; // save record
-
 void setup(void)
 {
   myVR.begin(9600);
-
-  /** initialize */
   Serial.begin(115200);
   Serial.println(F("Elechouse Voice Recognition V3 Module \"train\" sample."));
 
@@ -304,29 +298,15 @@ void setup(void)
 void loop(void)
 {
   int len, paraNum, paraLen, i;
-
-  /** receive Serial command */
   len = receiveCMD();
   if(len>0){
-    /** check if the received command is valid */
     if(!checkCMD(len)){
-
-      /** check parameter number of the received command  */
       paraNum = checkParaNum(len);
-
-      /** display the receved command back */
       Serial.write(cmd, len);
-
-      /** find the first parameter */
       paraLen = findPara(len, 1, &paraAddr);
-
-      /** compare the received command with command in the list */
       for(i=0; i<CMD_NUM; i++){
-        /** compare command length */
         if(paraLen == cmdLen[i]){
-          /** compare command content */
           if( compareCMD(paraAddr, (uint8_t *)cmdList[i], paraLen) == 0 ){
-            /** call command function */
             if( cmdFunction[i](len, paraNum) != 0){
               printSeperator();
               Serial.println(F("Command Format Error!"));
@@ -336,8 +316,6 @@ void loop(void)
           }
         }
       }
-
-      /** command is not supported*/
       if(i == CMD_NUM){ 
         printSeperator();
         Serial.println(F("Unkonwn command"));
@@ -345,18 +323,14 @@ void loop(void)
       }
     }
     else{
-      /** received command is invalid */
       printSeperator();
       Serial.println(F("Command format error"));
       printSeperator();
     }
   }
-
-  /** try to receive recognize result */
   int ret;
   ret = myVR.recognize(buf, 50);
   if(ret>0){
-    /** voice recognized, print result */
     printVR(buf);
   }
 }
@@ -586,7 +560,6 @@ int cmdRecord(int len, int paraNum)
         return -1;
       }      
     }
-
     ret = myVR.checkRecord(buf, records, paraNum-1);    // auto clean duplicate records
     printSeperator();
     if(ret>=0){
@@ -609,17 +582,14 @@ int cmdSigTrain(int len, int paraNum)
   if(paraNum < 2){
     return -1;
   }
-
   findPara(len, 2, &paraAddr);
   records[0] = atoi((char *)paraAddr);
   if(records[0] == 0 && *paraAddr != '0'){
     return -1;
   }
-
   findPara(len, 3, &paraAddr);
   sig_len = findPara(len, paraNum, &lastAddr);
   sig_len +=( (unsigned int)lastAddr - (unsigned int)paraAddr );
-
   printSeperator();
   ret = myVR.trainWithSignature(records[0], paraAddr, sig_len, buf);
   //  ret = myVR.trainWithSignature(records, paraNum-1);
@@ -630,7 +600,6 @@ int cmdSigTrain(int len, int paraNum)
     Serial.println(F("Train with signature failed or timeout."));
   }
   printSeperator();
-
   return 0;
 }
 int cmdGetSig(int len, int paraNum)
@@ -639,15 +608,12 @@ int cmdGetSig(int len, int paraNum)
   if(paraNum != 2){
     return -1;
   }
-
   findPara(len, 2, &paraAddr);
   records[0] = atoi((char *)paraAddr);
   if(records[0] == 0 && *paraAddr != '0'){
     return -1;
   }
-
   ret = myVR.checkSignature(records[0], buf);
-
   printSeperator();
   if(ret == 0){
     Serial.println(F("Signature isn't set."));
@@ -708,10 +674,8 @@ void printSignature(uint8_t *buf, int len)
 void printVR(uint8_t *buf)
 {
   Serial.println(F("VR Index\tGroup\tRecordNum\tSignature"));
-
   Serial.print(buf[2], DEC);
   Serial.print(F("\t\t"));
-
   if(buf[0] == 0xFF){
     Serial.print(F("NONE"));
   }
@@ -735,10 +699,6 @@ void printVR(uint8_t *buf)
   }
   Serial.println(F("\r\n"));
 }
-
-/**
- * @brief   Print seperator. Print 80 '-'.
- */
 void printSeperator()
 {
   for(int i=0; i<80; i++){
@@ -785,7 +745,6 @@ void printCheckRecognizer(uint8_t *buf)
         Serial.print(F("Untrained"));
       }
     }
-
     Serial.println();
   } 
 }
@@ -794,7 +753,6 @@ void printCheckRecord(uint8_t *buf, int num)
   Serial.print(F("Check "));
   Serial.print(buf[0], DEC);
   Serial.println(F(" records."));
-
   Serial.print(num, DEC);
   if(num>1){
     Serial.println(F(" records trained."));
@@ -802,7 +760,6 @@ void printCheckRecord(uint8_t *buf, int num)
   else{
     Serial.println(F(" record trained."));
   }
-
   for(int i=0; i<buf[0]*2; i += 2){
     Serial.print(buf[i+1], DEC);
     Serial.print(F("\t-->\t"));
@@ -827,7 +784,6 @@ void printCheckRecordAll(uint8_t *buf, int num)
 {
   Serial.print(F("Check 255"));
   Serial.println(F(" records."));
-
   Serial.print(num, DEC);
   if(num>1){
     Serial.println(F(" records trained."));
@@ -987,7 +943,6 @@ const unsigned int io_pw_tab[16]={
 
 void printSystemSettings(uint8_t *buf, int len)
 {
-
   switch(buf[0]){
   case 0:
   case 3:
@@ -1009,7 +964,6 @@ void printSystemSettings(uint8_t *buf, int len)
     Serial.println(F("Baud rate: UNKONOWN"));
     break;
   }
-
   switch(buf[1]){
   case 0:
   case 0xFF:
@@ -1028,7 +982,6 @@ void printSystemSettings(uint8_t *buf, int len)
     Serial.println(F("Output IO Mode: UNKONOWN"));
     break;
   }
-
   if(buf[2] > 15){
     Serial.println(F("Pulse width: UNKONOWN"));
   }
@@ -1037,14 +990,12 @@ void printSystemSettings(uint8_t *buf, int len)
     Serial.print(io_pw_tab[buf[2]], DEC);
     Serial.println(F("ms"));
   }
-
   if(buf[3] == 0 || buf[3] == 0xFF){
     Serial.println(F("Auto Load: disable"));
   }
   else{
     Serial.println(F("Auto Load: enable"));
   }
-
   switch(buf[4]){
   case 0:
   case 0xFF:
@@ -1061,7 +1012,6 @@ void printSystemSettings(uint8_t *buf, int len)
     break;
   }
 }
-
 void printHelp(void)
 {
   Serial.println(F("COMMAND        FORMAT                        EXAMPLE                    Comment"));
