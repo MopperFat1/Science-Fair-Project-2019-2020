@@ -197,60 +197,10 @@ void loop()
 
 
 
-/**
- ******************************************************************************
- * @file    vr_sample_train.ino
- * @author  JiapengLi
- * @brief   This file provides a demostration on 
- * how to train VoiceRecognitionModule to record your voice
- ******************************************************************************
- * @note:
- * Use serial command to control VoiceRecognitionModule. '
- * All commands are case insensitive. Default serial baud rate 115200.
- * 
- * COMMAND        FORMAT                        EXAMPLE                    Comment
- * 
- * train          train (r0) (r1)...            train 0 2 45               Train records
- * load           load (r0) (r1) ...            load 0 51 2 3              Load records
- * clear          clear                         clear                      remove all records in  Recognizer
- * record         record / record (r0) (r1)...  record / record 0 79       Check record train status
- * vr             vr                            vr                         Check recognizer status
- * getsig         getsig (r)                    getsig 0                   Get signature of record (r)
- * sigtrain       sigtrain (r) (sig)            sigtrain 0 ZERO            Train one record(r) with signature(sig)
- * settings       settings                      settings                   Check current system settings
- ******************************************************************************
- * @section  HISTORY
- * 
- * 2013/06/13    Initial version.
- */
+
 #include <SoftwareSerial.h>
 #include "VoiceRecognitionV3.h"
-
-/**        
- * Connection
- * Arduino    VoiceRecognitionModule
- * 2   ------->     TX
- * 3   ------->     RX
- */
-VR myVR(2,3);    // 2:RX 3:TX, you can choose your favourite pins.
-
-/***************************************************************************/
-/** declare print functions */
-void printSeperator();
-void printSignature(uint8_t *buf, int len);
-void printVR(uint8_t *buf);
-void printLoad(uint8_t *buf, uint8_t len);
-void printTrain(uint8_t *buf, uint8_t len);
-void printCheckRecognizer(uint8_t *buf);
-void printUserGroup(uint8_t *buf, int len);
-void printCheckRecord(uint8_t *buf, int num);
-void printCheckRecordAll(uint8_t *buf, int num);
-void printSigTrain(uint8_t *buf, uint8_t len);
-void printSystemSettings(uint8_t *buf, int len);
-void printHelp(void);
-
-/***************************************************************************/
-// command analyze part
+VR myVR(2,3);
 #define CMD_BUF_LEN      64+1
 #define CMD_NUM     10
 typedef int (*cmd_function_t)(int, int);
@@ -273,8 +223,7 @@ int cmdSigTrain(int len, int paraNum);
 int cmdGetSig(int len, int paraNum);
 int cmdSettings(int len, int paraNum);
 int cmdHelp(int len, int paraNum);
-/** cmdList, cmdLen, cmdFunction has correspondence */
-const char cmdList[CMD_NUM][10] = {  // command list table
+const char cmdList[CMD_NUM][10] = { 
   {
     "train"  }
   ,
@@ -306,7 +255,7 @@ const char cmdList[CMD_NUM][10] = {  // command list table
     "help"  }
   ,
 };
-const char cmdLen[CMD_NUM]= {    // command length
+const char cmdLen[CMD_NUM]= {
   5,  //  {"train"},
   4,  //  {"load"}, 
   5,  //  {"clear"},
@@ -411,12 +360,6 @@ void loop(void)
     printVR(buf);
   }
 }
-
-/**
- * @brief   receive command from Serial.
- * @param   NONE.
- * @retval  command length, if no command receive return -1.
- */
 int receiveCMD()
 {
   int ret;
@@ -446,15 +389,6 @@ int receiveCMD()
     }
   }
 }
-
-/**
- * @brief   compare two commands, case insensitive.
- * @param   para1  -->  command buffer 1
- * para2  -->  command buffer 2
- * len    -->  buffer length
- * @retval  0  --> equal
- * -1  --> unequal
- */
 int compareCMD(uint8_t *para1 , uint8_t *para2, int len)
 {
   int i;
@@ -470,13 +404,6 @@ int compareCMD(uint8_t *para1 , uint8_t *para2, int len)
   }
   return 0;
 }
-
-/**
- * @brief   Check command format.
- * @param   len  -->  command length
- * @retval  0  -->  command is valid
- * -1  -->  command is invalid
- */
 int checkCMD(int len)
 {
   int i;
@@ -493,12 +420,6 @@ int checkCMD(int len)
   }
   return 0;
 }
-
-/**
- * @brief   Check the number of parameters in the command
- * @param   len  -->  command length
- * @retval  number of parameters
- */
 int checkParaNum(int len)
 {
   int cnt=0, i;
@@ -513,14 +434,6 @@ int checkParaNum(int len)
   }
   return cnt;
 }
-
-/**
- * @brief   Find the specified parameter.
- * @param   len       -->  command length
- * paraIndex -->  parameter index
- * addr      -->  return value. position of the parameter
- * @retval  length of specified parameter
- */
 int findPara(int len, int paraIndex, uint8_t **addr)
 {
   int cnt=0, i, paraLen;
@@ -561,14 +474,6 @@ int cmdHelp(int len, int paraNum)
   printSeperator();
   return 0;
 }
-
-/**
- * @brief   Handle "train" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdTrain(int len, int paraNum)
 {
   int i, ret;
@@ -598,14 +503,6 @@ int cmdTrain(int len, int paraNum)
   printSeperator();
   return 0;
 }
-
-/**
- * @brief   Handle "load" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdLoad(int len, int paraNum)
 {
   int i, ret;
@@ -632,14 +529,6 @@ int cmdLoad(int len, int paraNum)
   printSeperator();
   return 0;
 }
-
-/**
- * @brief   Handle "clear" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdClear(int len, int paraNum)
 {
   if(paraNum != 1){
@@ -657,14 +546,6 @@ int cmdClear(int len, int paraNum)
   }
   return 0;
 }
-
-/**
- * @brief   Handle "vr" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdVR(int len, int paraNum)
 {
   int ret;
@@ -683,14 +564,6 @@ int cmdVR(int len, int paraNum)
   printSeperator();
   return 0;
 }
-
-/**
- * @brief   Handle "record" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdRecord(int len, int paraNum)
 {
   int ret;
@@ -729,14 +602,6 @@ int cmdRecord(int len, int paraNum)
   }
   return 0;
 }
-
-/**
- * @brief   Handle "sigtrain" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdSigTrain(int len, int paraNum)
 {
   int ret, sig_len;
@@ -768,14 +633,6 @@ int cmdSigTrain(int len, int paraNum)
 
   return 0;
 }
-
-/**
- * @brief   Handle "getsig" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdGetSig(int len, int paraNum)
 {
   int ret;
@@ -807,14 +664,6 @@ int cmdGetSig(int len, int paraNum)
 
   return 0;
 }
-
-/**
- * @brief   Handle "test" command
- * @param   len     --> command length
- * paraNum --> number of parameters
- * @retval  0 --> success
- * -1 --> Command format error
- */
 int cmdTest(int len, int paraNum)
 {
   printSeperator();
@@ -842,14 +691,6 @@ int cmdSettings(int len, int paraNum)
   }
   return 0;
 }
-
-/*****************************************************************************/
-/**
- * @brief   Print signature, if the character is invisible, 
- * print hexible value instead.
- * @param   buf     --> command length
- * len     --> number of parameters
- */
 void printSignature(uint8_t *buf, int len)
 {
   int i;
@@ -864,17 +705,6 @@ void printSignature(uint8_t *buf, int len)
     }
   }
 }
-
-/**
- * @brief   Print signature, if the character is invisible, 
- * print hexible value instead.
- * @param   buf  -->  VR module return value when voice is recognized.
- * buf[0]  -->  Group mode(FF: None Group, 0x8n: User, 0x0n:System
- * buf[1]  -->  number of record which is recognized. 
- * buf[2]  -->  Recognizer index(position) value of the recognized record.
- * buf[3]  -->  Signature length
- * buf[4]~buf[n] --> Signature
- */
 void printVR(uint8_t *buf)
 {
   Serial.println(F("VR Index\tGroup\tRecordNum\tSignature"));
@@ -916,16 +746,6 @@ void printSeperator()
   }
   Serial.println();
 }
-
-/**
- * @brief   Print recoginizer status.
- * @param   buf  -->  VR module return value when voice is recognized.
- * buf[0]     -->  Number of valid voice records in recognizer
- * buf[i+1]   -->  Record number.(0xFF: Not loaded(Nongroup mode), or not set (Group mode)) (i= 0, 1, ... 6)
- * buf[8]     -->  Number of all voice records in recognizer
- * buf[9]     -->  Valid records position indicate.
- * buf[10]    -->  Group mode indicate(FF: None Group, 0x8n: User, 0x0n:System)
- */
 void printCheckRecognizer(uint8_t *buf)
 {
   Serial.print(F("All voice records in recognizer: "));
@@ -969,16 +789,6 @@ void printCheckRecognizer(uint8_t *buf)
     Serial.println();
   } 
 }
-
-/**
- * @brief   Print record train status.
- * @param   buf  -->  Check record command return value
- * buf[0]     -->  Number of checked records
- * buf[2i+1]  -->  Record number.
- * buf[2i+2]  -->  Record train status. (00: untrained, 01: trained, FF: record value out of range)
- * (i = 0 ~ buf[0]-1 )
- * num  -->  Number of trained records
- */
 void printCheckRecord(uint8_t *buf, int num)
 {
   Serial.print(F("Check "));
@@ -1013,16 +823,6 @@ void printCheckRecord(uint8_t *buf, int num)
     Serial.println();
   }
 }
-
-/**
- * @brief   Print record train status.
- * @param   buf  -->  Check record command return value
- * buf[0]     -->  Number of checked records
- * buf[2i+1]  -->  Record number.
- * buf[2i+2]  -->  Record train status. (00: untrained, 01: trained, FF: record value out of range)
- * (i = 0 ~ buf[0]-1 )
- * num  -->  Number of trained records
- */
 void printCheckRecordAll(uint8_t *buf, int num)
 {
   Serial.print(F("Check 255"));
@@ -1059,19 +859,6 @@ void printCheckRecordAll(uint8_t *buf, int num)
     Serial.println();
   }
 }
-
-/**
- * @brief   Print check user group result.
- * @param   buf  -->  Check record command return value
- * buf[8i]    -->  group number.
- * buf[8i+1]  -->  group position 0 status.
- * buf[8i+2]  -->  group position 1 status.
- * ...                ...
- * buf[8i+6]  -->  group position 5 status.
- * buf[8i+7]  -->  group position 6 status.
- * (i = 0 ~ len)
- * len  -->  number of checked groups
- */
 void printUserGroup(uint8_t *buf, int len)
 {
   int i, j;
@@ -1091,21 +878,6 @@ void printUserGroup(uint8_t *buf, int len)
     Serial.println();
   }
 }
-
-/**
- * @brief   Print "load" command return value.
- * @param   buf  -->  "load" command return value
- * buf[0]    -->  number of records which are load successfully.
- * buf[2i+1]  -->  record number
- * buf[2i+2]  -->  record load status.
- * 00 --> Loaded 
- * FC --> Record already in recognizer
- * FD --> Recognizer full
- * FE --> Record untrained
- * FF --> Value out of range"
- * (i = 0 ~ (len-1)/2 )
- * len  -->  length of buf
- */
 void printLoad(uint8_t *buf, uint8_t len)
 {
   if(len == 0){
@@ -1142,19 +914,6 @@ void printLoad(uint8_t *buf, uint8_t len)
     }
   }
 }
-
-/**
- * @brief   Print "train" command return value.
- * @param   buf  -->  "train" command return value
- * buf[0]    -->  number of records which are trained successfully.
- * buf[2i+1]  -->  record number
- * buf[2i+2]  -->  record train status.
- * 00 --> Trained 
- * FE --> Train Time Out
- * FF --> Value out of range"
- * (i = 0 ~ len-1 )
- * len  -->  length of buf
- */
 void printTrain(uint8_t *buf, uint8_t len)
 {
   if(len == 0){
@@ -1186,20 +945,6 @@ void printTrain(uint8_t *buf, uint8_t len)
     }
   }
 }
-
-/**
- * @brief   Print "sigtrain" command return value.
- * @param   buf  -->  "sigtrain" command return value
- * buf[0]  -->  number of records which are trained successfully.
- * buf[1]  -->  record number
- * buf[2]  -->  record train status.
- * 00 --> Trained 
- * F0 --> Trained, signature truncate
- * FE --> Train Time Out
- * FF --> Value out of range"
- * buf[3] ~ buf[len-1] --> Signature.
- * len  -->  length of buf
- */
 void printSigTrain(uint8_t *buf, uint8_t len)
 {
   if(len == 0){
@@ -1235,21 +980,6 @@ void printSigTrain(uint8_t *buf, uint8_t len)
   Serial.write(buf+3, len-3);
   Serial.println();
 }
-
-/**
- * @brief   Print "settings" command return value.
- * @param   buf  -->  "settings" command return value
- * buf[0]  -->  number of records which are trained successfully.
- * buf[1]  -->  record number
- * buf[2]  -->  record train status.
- * 00 --> Trained 
- * F0 --> Trained, signature truncate
- * FE --> Train Time Out
- * FF --> Value out of range"
- * buf[3] ~ buf[len-1] --> Signature.
- * len  -->  length of buf
- */
-
 const unsigned int io_pw_tab[16]={
   10,  15,  20,  25,  30,  35,  40,  45, 
   50,  75,  100, 200, 300, 400, 500, 1000
