@@ -429,7 +429,6 @@ int cmdTrain(int len, int paraNum)
   }
   printSeperator();
   ret = myVR.train(records, paraNum-1, buf);
-  //  ret = myVR.train(records, paraNum-1);
   if(ret >= 0){
     printTrain(buf, ret);
   }
@@ -455,7 +454,6 @@ int cmdLoad(int len, int paraNum)
       return -1;
     }
   }
-  //  myVR.writehex(records, paraNum-1);
   ret = myVR.load(records, paraNum-1, buf);
   printSeperator();
   if(ret >= 0){
